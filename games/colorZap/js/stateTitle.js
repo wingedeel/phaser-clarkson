@@ -24,6 +24,7 @@ var StateTitle = {
        		7
        	)
        this.btnStart.anchor.set(0.5, 0.5);
+       
        this.setListeners();
     },
 

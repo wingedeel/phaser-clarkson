@@ -12,6 +12,11 @@ var StateMain = {
     },
 
     create: function () {
+
+        this.speed = 200;
+
+        game.physics.startSystem(Phaser.Physics.Arcade);
+
     	// Add images to stage
     	var red = game.add.image(0,0,"red");
     	var blue = game.add.image(0,100,"blue");
@@ -51,31 +56,39 @@ var StateMain = {
        this.ring.anchor.set(0.5, 0.5);
 
        // BALL
-       this.ball = game.add.image(0, 0, "balls");
+       this.ball = game.add.sprite(0, 0, "balls");
        this.ball.anchor.set(0.5, 0.5);
+       game.physics.arcade.enable(this.ball);
 
        // Add event listeners to the whole stage
        this.setListeners();
+       this.resetBall();
     },
 
     setListeners: function () {
     	// When mouse is release set Ring back to white
     	game.input.onUp.add(this.resetRing, this);
-    	this.resetBall();
     },
 
     resetBall: function () {
-    	var color = game.rnd.integerInRange(0,5);
-    	var xx = game.rnd.integerInRange(0, game.world.width);
-    	var yy = game.rnd.integerInRange(0, 100);
-    	console.log('color ', color)
-    	this.ball.frame=color;
-    	this.ball.x = xx;
-    	this.ball.y = yy;
+    	var color = game.rnd.integerInRange(1, 4);
+        var xx = game.rnd.integerInRange(0, game.world.width);
+        var yy = game.rnd.integerInRange(0, 100);
+        
+        this.ball.frame = color;
+        this.ball.x = xx;
+        this.ball.y = yy;
+
+        
+       //this.ball.body.velocity.setTo(0,100);
+
+        
+        var rot = game.physics.arcade.moveToXY(this.ball, this.ring.x, this.ring.y, this.speed);
+        this.ball.rotation = rot;
     },
 
     changeColor: function (target) {
-    	console.log(target.name)
+    	
     	switch(target.name){
     		case "red":
     			this.ring.frame=3;
@@ -97,6 +110,22 @@ var StateMain = {
     },
 
     update: function () {
+        // Measure the distance between the ball and the ring
+        var diffx = Math.abs(this.ring.x - this.ball.x);
+        var diffy = Math.abs(this.ring.y - this.ball.y);
+
+        // If diff x and y are less than 10 we know we are at ring
+        if (diffx<10 && diffy<10) {
+            this.ball.body.velocity.setTo(0,0);
+
+            // If frame of ball and ring are same its a match
+            // So reset ball
+            if (this.ball.frame ==  this.ring.frame) {
+                this.resetBall();
+            } else {
+                game.state.start("StateOver");
+            }
+        }
 
     }
 
