@@ -1,4 +1,8 @@
+// Global variables to all our states
 var game;
+var score;
+var soundOn = true;
+
 window.onload = function()
 {
 	 var isMobile=navigator.userAgent.indexOf("Mobile");

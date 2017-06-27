@@ -9,13 +9,27 @@ var StateMain = {
 
     	game.load.spritesheet("rings", "images/main/rings.png", 60, 63 ,5);
     	game.load.spritesheet("balls", "images/main/balls.png", 35, 35 ,5);
+        game.load.spritesheet("soundButtons", "images/ui/soundButtons.png", 32, 32 ,2);
+
+        game.load.audio('points', 'sounds/points.mp3');
+        game.load.audio('gameOver', 'sounds/gameOver.mp3');
     },
 
     create: function () {
 
+        // SPEED
         this.speed = 200;
+        this.incSpeed = 20;
+        this.maxSpeed = 450;
+
+        // SCORE
+        score = 0;
 
         game.physics.startSystem(Phaser.Physics.Arcade);
+
+        // Create sound instance;
+        this.pointSound =  game.add.audio('points');
+        this.gameOverSound =  game.add.audio('gameOver');
 
     	// Add images to stage
     	var red = game.add.image(0,0,"red");
@@ -51,7 +65,7 @@ var StateMain = {
        this.blockGroup.x = game.world.centerX - this.blockGroup.width/2;
        this.blockGroup.y = game.height-250;
 
-       // Create a ring
+       // RING
        this.ring = game.add.image(game.world.centerX, this.blockGroup.y-100, "rings");
        this.ring.anchor.set(0.5, 0.5);
 
@@ -60,17 +74,51 @@ var StateMain = {
        this.ball.anchor.set(0.5, 0.5);
        game.physics.arcade.enable(this.ball);
 
-       // Add event listeners to the whole stage
+       // TEXT
+       this.scoreText = game.add.text(game.world.centerX, 150, "0");
+       this.scoreText.fill = "#ffffff";
+       this.scoreText.fontSize =  64;
+       this.scoreText.anchor.set(0.5, 0.5);
+
+       this.scoreLabel = game.add.text(game.world.centerX, 100, "Score");
+       this.scoreLabel.fill = "#ffffff";
+       this.scoreLabel.fontSize =  32;
+       this.scoreLabel.anchor.set(0.5, 0.5);
+
+       // SOUND BUTTONS
+       this.soundButton = game.add.image(20, 20, "soundButtons");
+       this.soundButton.inputEnabled = true; 
+       if (soundOn == true) {
+            this.soundButton.frame = 0;
+        } else {
+            this.soundButton.frame = 1;
+        }
+
+       // STAGE EVENT LISTENERS
        this.setListeners();
        this.resetBall();
     },
 
     setListeners: function () {
-    	// When mouse is release set Ring back to white
+    	// When mouse is released set Ring back to white
     	game.input.onUp.add(this.resetRing, this);
+        // When mouse down on soundbutton Toggle sound
+        this.soundButton.events.onInputDown.add(this.toggleSound, this);
+    },
+
+    toggleSound: function () {
+        console.log('toggle sound');
+        soundOn = !soundOn;
+        if (soundOn == true) {
+            this.soundButton.frame = 0;
+        } else {
+            this.soundButton.frame = 1;
+        }
     },
 
     resetBall: function () {
+
+        // Set new ball color and pos
     	var color = game.rnd.integerInRange(1, 4);
         var xx = game.rnd.integerInRange(0, game.world.width);
         var yy = game.rnd.integerInRange(0, 100);
@@ -79,12 +127,15 @@ var StateMain = {
         this.ball.x = xx;
         this.ball.y = yy;
 
-        
-       //this.ball.body.velocity.setTo(0,100);
-
-        
+        // Rotate ball so it faces target
         var rot = game.physics.arcade.moveToXY(this.ball, this.ring.x, this.ring.y, this.speed);
         this.ball.rotation = rot;
+
+        // Increase the speed (and limit if necessary)
+        this.speed += this.incSpeed;
+        if (this.speed>this.maxSpeed) {
+            this.speed = this.maxSpeed;
+        }
     },
 
     changeColor: function (target) {
@@ -110,6 +161,7 @@ var StateMain = {
     },
 
     update: function () {
+       
         // Measure the distance between the ball and the ring
         var diffx = Math.abs(this.ring.x - this.ball.x);
         var diffy = Math.abs(this.ring.y - this.ball.y);
@@ -122,10 +174,19 @@ var StateMain = {
             // So reset ball
             if (this.ball.frame ==  this.ring.frame) {
                 this.resetBall();
+                score++;
+                this.scoreText.text = score;
+                if (soundOn == true) {
+                    this.pointSound.play();
+                }
             } else {
+                if (soundOn == true) {
+                    this.gameOverSound.play();
+                }
                 game.state.start("StateOver");
             }
         }
+       
 
     }
 
