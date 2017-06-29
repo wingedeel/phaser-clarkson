@@ -10,17 +10,32 @@ var StateMain={
         game.load.image("background", "images/main/background.png");
         game.load.spritesheet('candy', 'images/main/candy.png', 52,50,8);
         game.load.image("balloon", "images/main/thought.png");
+        game.load.spritesheet("soundButtons", "images/ui/soundButtons.png", 44, 44, 4); 
+        game.load.audio("burp", "sounds/burp.mp3");
+        game.load.audio("gulp", "sounds/gulp.mp3");
+        game.load.audio("backgroundMusic", "sounds/background.mp3");
     },
     
     create:function()
     {
         score=0;
+        this.musicPlaying = false;
+
         // Start the Physics engine
         game.physics.startSystem(Phaser.Physics.ARCADE);
+
+        game.stage.backgroundColor="#000000";
 
 
         this.top = 0;
         this.bottom = game.height-120;
+
+        // SOUNDS
+        this.burp = game.add.audio("burp");
+        this.gulp = game.add.audio("gulp");
+        this.backgroundMusic = game.add.audio("backgroundMusic");
+        this.backgroundMusic.volume = 0.5;
+        this.backgroundMusic.loop = true;
 
         // DRAGON
         this.dragon = game.add.sprite(0, 0, "dragon");
@@ -31,11 +46,12 @@ var StateMain={
         this.background = game.add.tileSprite(0, game.height-480, game.width, 480, 'background');
 
         // IPAD FIX 
-        if (screen.height > 754) {
+        if (screen.height > 764) {
             // ipad height is 755
             // centers y pos. Will look like a wide screen film
             this.background.y = game.world.centerY-this.background.height/2;
             this.top = this.background.y;
+            this.bottom = this.background.y+360;
         }
 
         this.dragon.bringToTop();
@@ -64,24 +80,30 @@ var StateMain={
         this.balloonGroup.scale.y = 0.5;
         this.balloonGroup.x = 50;
 
-        // Choose a different thought every time game starts up
-        this.resetThink();
+        
 
         // TEXT
-       this.scoreText = game.add.text(game.world.centerX, 60, "0");
+       this.scoreText = game.add.text(game.world.centerX, this.top+60, "0");
        this.scoreText.fill = "#000000";
        this.scoreText.fontSize =  64;
        this.scoreText.anchor.set(0.5, 0.5);
 
-       this.scoreLabel = game.add.text(game.world.centerX, 20, "Score");
+       this.scoreLabel = game.add.text(game.world.centerX, this.top+20, "Score");
        this.scoreLabel.fill = "#000000";
        this.scoreLabel.fontSize =  32;
        this.scoreLabel.anchor.set(0.5, 0.5);
 
-         // Fire this function every second
-        game.time.events.loop(Phaser.Timer.SECOND, this.fireCandy, this);
+       // SOUND BUTTONS
+       this.btnMusic = game.add.sprite(20, 20, "soundButtons");
+       this.btnSound = game.add.sprite(70, 20, "soundButtons");
+       this.btnMusic.frame=2;
+       this.btnSound.frame=0;
 
+         
         this.setListeners();
+        this.resetThink();  // Choose a different thought every time game starts up
+        this.updateButtons();
+        this.updateMusic();
 
     },
     
@@ -90,6 +112,16 @@ var StateMain={
     		game.scale.enterIncorrectOrientation.add(this.wrongWay,this);
     		game.scale.leaveIncorrectOrientation.add(this.rightWay, this);
     	}
+        // Fire this function every second
+        game.time.events.loop(Phaser.Timer.SECOND, this.fireCandy, this);
+
+        // Sound buttons
+        this.btnSound.inputEnabled=true;
+        this.btnSound.events.onInputDown.add(this.toggleSound, this);
+
+        this.btnMusic.inputEnabled=true;
+        this.btnMusic.events.onInputDown.add(this.toggleMusic, this);
+        
     },
 
     fireCandy: function () {
@@ -97,7 +129,7 @@ var StateMain={
         // Get the first available candy that is not onscreen/not active
         var candy = this.candies.getFirstDead();
         // -60 to allow for ground
-        var yy = game.rnd.integerInRange(0, game.height-60); 
+        var yy = game.rnd.integerInRange(this.top, this.bottom); 
         // -100 as otherwise will be offscreen and killOutBounds won't work
         var xx = game.width-100; 
         // Spritesheet frame   
@@ -128,19 +160,63 @@ var StateMain={
     onEat: function (dragon, candy) {
         if (this.think.frame == candy.frame) {
             // Remove candy from stage
+            //score = score + 5;
             candy.kill();
             this.resetThink();
             score++;
-            this.scoreText.text=score;
+            if (soundOn == true) {
+                this.gulp.play();
+            }
         } else {
+            //score++;
+             this.backgroundMusic.stop();
+            if (soundOn == true) {
+                this.burp.play();
+            }
             candy.kill();
+
             game.state.start("StateOver");
         }
+        
+        this.scoreText.text=score;
     },
 
     resetThink: function () {
         var thinking = game.rnd.integerInRange(0,7);
         this.think.frame = thinking;
+    },
+    toggleSound: function(){
+        soundOn = !soundOn;
+        this.updateButtons();
+    }, 
+    toggleMusic: function(){
+        musicOn = !musicOn;
+        this.updateButtons();
+        this.updateMusic();
+    }, 
+
+    updateMusic: function(){
+        if (musicOn==true){
+            if (this.musicPlaying==false){
+                this.musicPlaying=true;
+                this.backgroundMusic.play();
+            }
+        } else {
+            this.musicPlaying=false;
+            this.backgroundMusic.stop();
+        }
+    },
+    updateButtons: function () {
+        if (soundOn == true) {
+            this.btnSound.frame=0;
+        } else {
+            this.btnSound.frame=1;
+        }
+        if (musicOn == true) {
+            this.btnMusic.frame=2;
+        } else {
+            this.btnMusic.frame=3;
+        }
     },
 
     update: function () {
