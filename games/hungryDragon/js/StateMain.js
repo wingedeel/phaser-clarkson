@@ -20,6 +20,9 @@ var StateMain={
     {
         score=0;
         this.musicPlaying = false;
+        this.lift=350;
+        this.fall=500;
+        this.delay=2;
 
         // Start the Physics engine
         game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -67,7 +70,7 @@ var StateMain={
 
          // Enable physics on the dragon and candies
         game.physics.enable([this.dragon, this.candies], Phaser.Physics.ARCADE);
-        this.dragon.body.gravity.y = 500;
+        this.dragon.body.gravity.y = this.fall;
         this.dragon.body.immovable = true;
 
         // THOUGHT BUBBLE
@@ -113,7 +116,7 @@ var StateMain={
     		game.scale.leaveIncorrectOrientation.add(this.rightWay, this);
     	}
         // Fire this function every second
-        game.time.events.loop(Phaser.Timer.SECOND, this.fireCandy, this);
+        game.time.events.loop(Phaser.Timer.SECOND*this.delay, this.fireCandy, this);
 
         // Sound buttons
         this.btnSound.inputEnabled=true;
@@ -154,7 +157,7 @@ var StateMain={
 
     flap: function () {
         // This will counter the gravity
-        this.dragon.body.velocity.y =-350;
+        this.dragon.body.velocity.y =-this.lift;
     },
 
     onEat: function (dragon, candy) {
