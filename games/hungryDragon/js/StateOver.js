@@ -11,14 +11,16 @@ var StateOver={
         this.top=0;
         this.bottom = game.height-120;
 
+/*
         // IPAD FIX 
         if (screen.height > 764) {
             // ipad height is 755
             // centers y pos. Will look like a wide screen film
             this.background.y = game.world.centerY-this.background.height/2;
             this.top = this.background.y;
-            this.bottom = this.background.y+360;
+            this.bottom = this.background.y+this.background.height-120;
         }
+*/
         this.btnPlayAgain = game.add.button(
        		game.world.centerX,
        		game.world.centerY+100,

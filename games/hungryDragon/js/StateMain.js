@@ -83,9 +83,7 @@ var StateMain={
         this.balloonGroup.scale.y = 0.5;
         this.balloonGroup.x = 50;
 
-        
-
-        // TEXT
+        // SCORE TEXT
        this.scoreText = game.add.text(game.world.centerX, this.top+60, "0");
        this.scoreText.fill = "#000000";
        this.scoreText.fontSize =  64;
@@ -97,8 +95,8 @@ var StateMain={
        this.scoreLabel.anchor.set(0.5, 0.5);
 
        // SOUND BUTTONS
-       this.btnMusic = game.add.sprite(20, 20, "soundButtons");
-       this.btnSound = game.add.sprite(70, 20, "soundButtons");
+       this.btnMusic = game.add.sprite(game.width-100, 20, "soundButtons");
+       this.btnSound = game.add.sprite(game.width-50, 20, "soundButtons");
        this.btnMusic.frame=2;
        this.btnSound.frame=0;
 
