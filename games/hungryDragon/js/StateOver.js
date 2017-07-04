@@ -41,12 +41,12 @@ var StateOver={
         this.dragon.scale.x =-1;
 
          // SCORE TEXT
-       this.scoreText = game.add.text(game.world.centerX, this.top+60, score);
+       this.scoreText = game.add.text(game.world.centerX, this.top+140, score);
        this.scoreText.fill = "#000000";
        this.scoreText.fontSize =  64;
        this.scoreText.anchor.set(0.5, 0.5);
 
-       this.scoreLabel = game.add.text(game.world.centerX, this.top+20, "Score");
+       this.scoreLabel = game.add.text(game.world.centerX, this.top+70, "Score");
        this.scoreLabel.fill = "#000000";
        this.scoreLabel.fontSize =  32;
        this.scoreLabel.anchor.set(0.5, 0.5);

@@ -20,7 +20,7 @@ var StateMain={
     {
         score=0;
         this.musicPlaying = false;
-        this.lift=350;
+        this.lift=250;
         this.fall=500;
         this.delay=2;
 
@@ -164,7 +164,7 @@ var StateMain={
             //score = score + 5;
             candy.kill();
             this.resetThink();
-            score++;
+            score = score+2;
             if (soundOn == true) {
                 this.gulp.play();
             }
