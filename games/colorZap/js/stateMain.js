@@ -18,8 +18,8 @@ var StateMain = {
     create: function () {
 
         // SPEED
-        this.speed = 200;
-        this.incSpeed = 20;
+        this.speed = 150;
+        this.incSpeed = 2;
         this.maxSpeed = 450;
 
         // SCORE
